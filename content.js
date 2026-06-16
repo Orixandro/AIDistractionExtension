@@ -18,11 +18,21 @@ async function verificarSiEsEntretenimiento(texto) {
     });
 
     const data = await response.json();
-    const resultado = data.candidates[0].content.parts[0].text.trim().toUpperCase();
-    return resultado.includes("SI");
+    
+    // Imprime la respuesta real en la consola para poder investigar si falla
+    console.log("[Filtro API] Respuesta cruda de Gemini:", data);
+
+    // Comprobamos de forma segura si la estructura esperada existe antes de leerla
+    if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+      const resultado = data.candidates[0].content.parts[0].text.trim().toUpperCase();
+      return resultado.includes("SI");
+    } else {
+      console.warn("[Filtro API] La estructura de respuesta no es la esperada o fue bloqueada por seguridad. Revisa la respuesta cruda de arriba.");
+      return false;
+    }
   } catch (error) {
     console.error("Error al conectar con Gemini API:", error);
-    return false; // En caso de error, no bloquea por defecto
+    return false; 
   }
 }
 
