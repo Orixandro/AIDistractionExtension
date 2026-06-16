@@ -3,9 +3,8 @@ async function verificarSiEsEntretenimiento(texto) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
 
   const prompt = `Analiza el siguiente título de video y/o nombre de canal de YouTube: "${texto}".
-  Determina si pertenece principalmente a la categoría de "entretenimiento" (como videojuegos, humor, memes, vlogs irrelevantes, chismes, series, etc.).
-  Responde ÚNICAMENTE con la palabra "SI" si es entretenimiento, o "NO" si es educativo, técnico, informativo o de desarrollo personal. 
-  La música NO cuenta como entretenimiento. No añadas nada más.`;
+  Determina si pertenece principalmente a la categoría de "entretenimiento" (como videojuegos, humor, memes, vlogs irrelevantes, chismes, series, timelapses, etc.). 
+  La música NO cuenta como entretenimiento. Responde ÚNICAMENTE con la palabra "SI" si es entretenimiento, o "NO" si es educativo, técnico, informativo o de desarrollo personal. No añadas nada más.`;
 
   const MAX_RETRIES = 3;
 
@@ -24,6 +23,7 @@ async function verificarSiEsEntretenimiento(texto) {
 
       if (data && data.candidates && data.candidates[0]?.content?.parts?.[0]) {
         const resultado = data.candidates[0].content.parts[0].text.trim().toUpperCase();
+        registrarPeticionEnCuota()
         return resultado.includes("SI") ? "SI" : "NO";
       }
 
@@ -244,3 +244,13 @@ observer.observe(document.body, {
   childList: true,
   subtree: true
 });
+
+async function registrarPeticionEnCuota() {
+  chrome.runtime.sendMessage({ accion: "sumarPeticion" }, (respuesta) => {
+    if (chrome.runtime.lastError) {
+      console.error("[Content] Error enviando mensaje:", chrome.runtime.lastError);
+    } else {
+      console.log("[Content] El contador RPD ha sido actualizado por el Background.");
+    }
+  });
+}
