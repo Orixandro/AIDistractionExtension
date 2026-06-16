@@ -16,6 +16,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.youtube.com/*"],
+      "exclude_matches": ["https://music.youtube.com/*"],
       "js": ["config.js", "content.js"],
       "run_at": "document_idle"
     }
